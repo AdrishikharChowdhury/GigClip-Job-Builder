@@ -58,3 +58,58 @@ export type JobLinkItemProps = {
   color: string;
   glyph: string;
 };
+
+export type AuthResult =
+  | {
+      success: true;
+      data: EmployeeData;
+      message: string;
+    }
+  | {
+      success: false;
+      message: string;
+      fieldErrors?: Record<string, string[] | undefined>;
+    };
+
+// Type '{ name: string; email: string; role: "employee" | "employer"; id: string; passwordHash: string; createdAt: Date; updatedAt: Date; }' is missing the following properties from type 'EmployeeData': jobTitle, skills, bio
+
+export type Data = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "employee" | "employer";
+  jobTitle?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  skills?: string[];
+  bio?: string;
+  company?: string;
+};
+
+export type Values = {
+  email: string;
+  password: string;
+};
+
+export type UserProfile =
+  | {
+      id: string;
+      userId: string;
+      jobTitle: string;
+      skills: string[];
+      bio: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role?: "employee";
+    }[]
+  | {
+      id: string;
+      userId: string;
+      company: string;
+      bio: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role?: "employer";
+    }[]
+  | null;

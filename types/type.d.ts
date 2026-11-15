@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type FeedbackCard = {
   id: number;
   name: string;
@@ -59,6 +61,11 @@ export type JobLinkItemProps = {
   glyph: string;
 };
 
+export type EmployeeData = {
+  id: string;
+  role: "employer" | "employee";
+};
+
 export type AuthResult =
   | {
       success: true;
@@ -67,11 +74,10 @@ export type AuthResult =
     }
   | {
       success: false;
+      data?: never;
       message: string;
       fieldErrors?: Record<string, string[] | undefined>;
     };
-
-// Type '{ name: string; email: string; role: "employee" | "employer"; id: string; passwordHash: string; createdAt: Date; updatedAt: Date; }' is missing the following properties from type 'EmployeeData': jobTitle, skills, bio
 
 export type Data = {
   id: string;
@@ -113,3 +119,7 @@ export type UserProfile =
       role?: "employer";
     }[]
   | null;
+
+export type Layout = {
+  children: ReactNode;
+};

@@ -2,10 +2,17 @@
 
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch, type DefaultValues, type Resolver } from "react-hook-form";
+import {
+  useForm,
+  useWatch,
+  type DefaultValues,
+  type Resolver,
+} from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Eye, EyeOff } from "lucide-react";
+import { getSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -50,6 +57,7 @@ const ROLE_CONFIG: Record<
 
 export default function SUPForm({ role }: { role: RoleOption }) {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
   const config = ROLE_CONFIG[role];
   const isEmployee = role === "Employee";
 
@@ -80,24 +88,69 @@ export default function SUPForm({ role }: { role: RoleOption }) {
     return errors[name]?.message;
   }
 
-  async function onSubmit(data: SignupValues) {
-    const result = await registerUser(data);
-    
-    if (result.success) {
-      toast.success(result.message);
-    } else {
+  async function onSubmit(values: SignupValues) {
+    const result = await registerUser(values);
+
+    if (!result.success) {
+      if (result.fieldErrors) {
+        for (const [name, messages] of Object.entries(result.fieldErrors)) {
+          const message = messages?.[0];
+          if (message) {
+            form.setError(name as FieldPath, { message });
+          }
+        }
+      }
+
       toast.error(result.message);
+      return;
     }
+
+    const signedIn = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    const session = signedIn?.ok ? await getSession() : null;
+
+    if (!session?.user) {
+      toast.success(result.message, {
+        description: "Sign in with your new account to continue.",
+      });
+      router.push("/sign-in");
+      return;
+    }
+
+    toast.success(result.message, {
+      description:
+        result.data.role === "employee"
+          ? "Welcome to GigClip."
+          : "Your hiring dashboard is ready.",
+    });
+
+    form.reset();
+    router.push(
+      result.data.role === "employee"
+        ? `/hub/empee/${result.data.id}`
+        : `/hub/emper/${result.data.id}`,
+    );
+    router.refresh();
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-6"
+    >
       <FieldGroup className="gap-5">
         {config.fields.map((field) => {
           const error = fieldError(field.name);
           return (
             <Field key={field.name} data-invalid={Boolean(error)}>
-              <FieldLabel htmlFor={`signup-${field.name}`} className={LABEL_CLASS}>
+              <FieldLabel
+                htmlFor={`signup-${field.name}`}
+                className={LABEL_CLASS}
+              >
                 {field.label}
               </FieldLabel>
 
@@ -114,7 +167,9 @@ export default function SUPForm({ role }: { role: RoleOption }) {
                   />
                   <button
                     type="button"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     onClick={() => setShowPassword((visible) => !visible)}
                     className="absolute inset-y-0 right-4 my-auto flex size-7 items-center justify-center text-carbon/50 transition-colors hover:text-carbon"
                   >
@@ -157,7 +212,9 @@ export default function SUPForm({ role }: { role: RoleOption }) {
                 </p>
               )}
               {error && (
-                <p className="text-[13px] font-medium leading-[1.39] text-ember">{error}</p>
+                <p className="text-[13px] font-medium leading-[1.39] text-ember">
+                  {error}
+                </p>
               )}
             </Field>
           );
@@ -166,9 +223,10 @@ export default function SUPForm({ role }: { role: RoleOption }) {
 
       <Button
         type="submit"
-        className="w-full rounded-pills bg-carbon py-3.5 text-[15px] font-extrabold tracking-[0.03em] text-paper-white transition-opacity hover:opacity-80"
+        disabled={form.formState.isSubmitting}
+        className="w-full rounded-pills bg-carbon py-3.5 text-[15px] font-extrabold tracking-[0.03em] text-paper-white transition-opacity hover:opacity-80 disabled:opacity-60"
       >
-        Sign Up
+        {form.formState.isSubmitting ? "Signing Up..." : "Sign Up"}
       </Button>
     </form>
   );

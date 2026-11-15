@@ -5,13 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { getSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 import { signInSchema, type SignInValues } from "@/lib/schema";
-import { loginUser } from "@/lib/actions/auth.actions";
 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-[0.032em]";
 const INPUT_CLASS =
@@ -19,6 +20,7 @@ const INPUT_CLASS =
 
 export default function SINForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -26,11 +28,36 @@ export default function SINForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit(data: SignInValues) {
-    loginUser(data);
-    toast.success("Welcome back!", {
-      description: "Signed in — backend hookup coming soon.",
+  async function onSubmit(values: SignInValues) {
+    const result = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
     });
+
+    if (!result?.ok) {
+      toast.error("Invalid email or password.");
+      return;
+    }
+
+    const session = await getSession();
+
+    if (!session?.user) {
+      toast.error("Signed in, but no session was created. Try again.");
+      return;
+    }
+
+    toast.success(
+      `Welcome back, ${session.user.name ?? "there"}.`,
+    );
+
+    form.reset();
+    router.push(
+      session.user.role === "employee"
+        ? `/hub/empee/${session.user.id}`
+        : `/hub/emper/${session.user.id}`,
+    );
+    router.refresh();
   }
 
   return (
@@ -100,9 +127,10 @@ export default function SINForm() {
 
       <Button
         type="submit"
-        className="w-full rounded-pills bg-carbon py-3.5 text-[15px] font-extrabold tracking-[0.03em] text-paper-white transition-opacity hover:opacity-80"
+        disabled={form.formState.isSubmitting}
+        className="w-full rounded-pills bg-carbon py-3.5 text-[15px] font-extrabold tracking-[0.03em] text-paper-white transition-opacity hover:opacity-80 disabled:opacity-60"
       >
-        Sign In
+        {form.formState.isSubmitting ? "Signing In..." : "Sign In"}
       </Button>
     </form>
   );

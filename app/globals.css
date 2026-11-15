@@ -131,4 +131,8 @@
     font-feature-settings: "tnum";
     font-synthesis-weight: none;
   }
+
+  h1{
+      user-select: none;
+  }
 }

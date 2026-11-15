@@ -23,6 +23,7 @@ import {
   type EmployeeValues,
   type EmployerValues,
 } from "@/lib/schema";
+import { registerUser } from "@/lib/actions/auth.actions";
 
 type SignupValues = EmployeeValues | EmployerValues;
 type RoleOption = "Employee" | "Employer";
@@ -79,11 +80,14 @@ export default function SUPForm({ role }: { role: RoleOption }) {
     return errors[name]?.message;
   }
 
-  function onSubmit(data: SignupValues) {
-    toast.success("Account clipped!", {
-      description: `Signed up as ${config.label}. Backend hookup coming soon.`,
-    });
-    return data;
+  async function onSubmit(data: SignupValues) {
+    const result = await registerUser(data);
+    
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
   }
 
   return (

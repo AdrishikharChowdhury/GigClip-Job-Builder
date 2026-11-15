@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 import SUPForm from "./SUPForm";
 import SINForm from "./SINForm";
-import { ArrowLeft, Backpack, SendToBack, SkipBack } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 type RoleOption = "Employee" | "Employer";
 type AuthType = "SIGN_IN" | "SIGN_UP";

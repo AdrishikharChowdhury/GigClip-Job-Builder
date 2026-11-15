@@ -11,6 +11,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 import { signInSchema, type SignInValues } from "@/lib/schema";
+import { loginUser } from "@/lib/actions/auth.actions";
 
 const LABEL_CLASS = "text-[12px] font-bold uppercase tracking-[0.032em]";
 const INPUT_CLASS =
@@ -25,14 +26,18 @@ export default function SINForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit() {
+  function onSubmit(data: SignInValues) {
+    loginUser(data);
     toast.success("Welcome back!", {
       description: "Signed in — backend hookup coming soon.",
     });
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-6"
+    >
       <FieldGroup className="gap-5">
         <Field data-invalid={Boolean(form.formState.errors.email)}>
           <FieldLabel htmlFor="signin-email" className={LABEL_CLASS}>

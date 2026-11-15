@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type FeedbackCard = {
   id: number;
   name: string;
@@ -57,4 +59,67 @@ export type JobLinkItemProps = {
   label: string;
   color: string;
   glyph: string;
+};
+
+export type EmployeeData = {
+  id: string;
+  role: "employer" | "employee";
+};
+
+export type AuthResult =
+  | {
+      success: true;
+      data: EmployeeData;
+      message: string;
+    }
+  | {
+      success: false;
+      data?: never;
+      message: string;
+      fieldErrors?: Record<string, string[] | undefined>;
+    };
+
+export type Data = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "employee" | "employer";
+  jobTitle?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  skills?: string[];
+  bio?: string;
+  company?: string;
+};
+
+export type Values = {
+  email: string;
+  password: string;
+};
+
+export type UserProfile =
+  | {
+      id: string;
+      userId: string;
+      jobTitle: string;
+      skills: string[];
+      bio: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role?: "employee";
+    }[]
+  | {
+      id: string;
+      userId: string;
+      company: string;
+      bio: string;
+      createdAt: Date;
+      updatedAt: Date;
+      role?: "employer";
+    }[]
+  | null;
+
+export type Layout = {
+  children: ReactNode;
 };

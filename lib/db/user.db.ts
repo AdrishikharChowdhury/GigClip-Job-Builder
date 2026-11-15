@@ -1,5 +1,6 @@
 
 import { eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 
 import { db } from "@/lib/db";
 import {
@@ -7,6 +8,7 @@ import {
   employeeProfiles,
   employerProfiles,
 } from "@/lib/db/schema";
+import { dicebearAvatar } from "@/lib/avatar";
 
 // Find a user by email
 export async function getUserByEmail(email: string) {
@@ -44,13 +46,17 @@ export async function createUserWithProfile(data: {
   bio: string;
 }) {
   return await db.transaction(async (tx) => {
+    const id = randomUUID();
+
     const [user] = await tx
       .insert(users)
       .values({
+        id,
         name: data.name.trim(),
         email: data.email.trim().toLowerCase(),
         passwordHash: data.passwordHash,
         role: data.role,
+        image: dicebearAvatar(id),
       })
       .returning();
 

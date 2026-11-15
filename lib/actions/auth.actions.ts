@@ -1,22 +1,15 @@
 "use server";
 
-import { employeeSchema, employerSchema } from "@/lib/schema";
-
-import {
-  getUserByEmail,
-  createUserWithProfile,
-  getUserById,
-} from "@/lib/db/user.db";
-
-import { hashPassword, verifyPassword } from "@/lib/auth/password";
-import { AuthResult, Data, UserProfile, Values } from "@/types/type";
-import { console } from "node:inspector/promises";
-import { db } from "../db";
-import { employeeProfiles, employerProfiles } from "../db/schema";
 import { eq } from "drizzle-orm";
 
+import { db } from "@/lib/db";
+import { employeeProfiles, employerProfiles } from "@/lib/db/schema";
+import { createUserWithProfile, getUserByEmail } from "@/lib/db/user.db";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { employeeSchema, employerSchema } from "@/lib/schema";
+import type { AuthResult, Values } from "@/types/type";
+
 export async function registerUser(values: unknown): Promise<AuthResult> {
-  // Make sure the submitted value is an object
   if (!values || typeof values !== "object" || Array.isArray(values)) {
     return {
       success: false,
@@ -26,7 +19,6 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
   const role = (values as { role?: unknown }).role;
 
-  // Employee registration
   if (role === "employee") {
     const parsed = employeeSchema.safeParse(values);
 
@@ -35,13 +27,6 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
         success: false,
         message: "Please check your registration details.",
         fieldErrors: parsed.error.flatten().fieldErrors,
-      };
-    }
-
-    if (parsed.data.role !== "employee") {
-      return {
-        success: false,
-        message: "Invalid account role.",
       };
     }
 
@@ -61,7 +46,7 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
       const passwordHash = await hashPassword(password);
 
-      const data: Data = await createUserWithProfile({
+      const user = await createUserWithProfile({
         name,
         email: normalizedEmail,
         passwordHash,
@@ -73,12 +58,10 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
       return {
         success: true,
-        data: data,
+        data: { id: user.id, role: user.role },
         message: "Employee account created successfully!",
       };
-    } catch (error) {
-      console.error("Employee registration error:", error);
-
+    } catch {
       return {
         success: false,
         message: "Unable to create your account. Please try again.",
@@ -86,7 +69,6 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
     }
   }
 
-  // Employer registration
   if (role === "employer") {
     const parsed = employerSchema.safeParse(values);
 
@@ -95,13 +77,6 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
         success: false,
         message: "Please check your registration details.",
         fieldErrors: parsed.error.flatten().fieldErrors,
-      };
-    }
-
-    if (parsed.data.role !== "employer") {
-      return {
-        success: false,
-        message: "Invalid account role.",
       };
     }
 
@@ -121,23 +96,21 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
       const passwordHash = await hashPassword(password);
 
-      const data: Data = await createUserWithProfile({
+      const user = await createUserWithProfile({
         name,
         email: normalizedEmail,
         passwordHash,
         role: "employer",
-        company,
+        company: company,
         bio,
       });
 
       return {
         success: true,
-        data,
+        data: { id: user.id, role: user.role },
         message: "Employer account created successfully!",
       };
-    } catch (error) {
-      console.error("Employer registration error:", error);
-
+    } catch {
       return {
         success: false,
         message: "Unable to create your account. Please try again.",
@@ -152,34 +125,29 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 }
 
 export async function loginUser(values: Values): Promise<AuthResult> {
+  const email =
+    typeof values?.email === "string" ? values.email.trim().toLowerCase() : "";
+  const password =
+    typeof values?.password === "string" ? values.password : "";
+
+  if (!email || !password) {
+    return {
+      success: false,
+      message: "Email or Password Not Entered",
+    };
+  }
+
   try {
-    if (!values || typeof values !== "object" || Array.isArray(values)) {
-      return {
-        success: false,
-        message: "Invalid registration data.",
-      };
-    }
-    const { email, password } = values;
+    const user = await getUserByEmail(email);
 
-    if (email == "" || password == "") {
-      return {
-        success: false,
-        message: "Email or Password Not Entered",
-      };
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const data: Data = await getUserByEmail(normalizedEmail);
-
-    if (!data) {
+    if (!user) {
       return {
         success: false,
         message: "Email Not Found",
       };
     }
 
-    const isValid = await verifyPassword(password, data.passwordHash);
+    const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
       return {
@@ -188,39 +156,35 @@ export async function loginUser(values: Values): Promise<AuthResult> {
       };
     }
 
-    const userProfile: UserProfile =
-      data.role === "employee"
+    const [profile] =
+      user.role === "employee"
         ? await db
-            .select()
+            .select({ id: employeeProfiles.id })
             .from(employeeProfiles)
-            .where(eq(employeeProfiles.userId, data.id))
-        : data.role === "employer"
-          ? await db
-              .select()
-              .from(employerProfiles)
-              .where(eq(employerProfiles.userId, data.id))
-          : null;
+            .where(eq(employeeProfiles.userId, user.id))
+            .limit(1)
+        : await db
+            .select({ id: employerProfiles.id })
+            .from(employerProfiles)
+            .where(eq(employerProfiles.userId, user.id))
+            .limit(1);
 
-    if (!userProfile) {
+    if (!profile) {
       return {
         success: false,
         message: "Something Went Wrong!!",
       };
     }
 
-    const updatedUserProfile = {
-      ...userProfile,
-      role: data.role,
-    };
-
     return {
       success: true,
-      data: updatedUserProfile,
-      message: "Employer logged in successfully!",
+      data: { id: user.id, role: user.role },
+      message:
+        user.role === "employee"
+          ? "Logged in as a candidate."
+          : "Logged in as an employer.",
     };
-  } catch (error) {
-    console.error("Login error:", error);
-
+  } catch {
     return {
       success: false,
       message: "Unable to login. Please try again.",

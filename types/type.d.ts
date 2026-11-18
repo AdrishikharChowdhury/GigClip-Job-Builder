@@ -123,3 +123,75 @@ export type UserProfile =
 export type Layout = {
   children: ReactNode;
 };
+
+export type GigStatus = "ongoing" | "failed" | "completed";
+
+export type GigAccent =
+  | "electric-blue"
+  | "mint-pop"
+  | "lavender"
+  | "sunburst"
+  | "voltage-violet"
+  | "ember";
+
+export type GigFailureReason =
+  | "deadline-missed"
+  | "scope-abandoned"
+  | "client-cancelled";
+
+export type GigBudget = {
+  amount: number;
+  currency: "USD";
+  type: "fixed" | "hourly";
+};
+
+type GigBase = {
+  id: string;
+  title: string;
+  client: string;
+  blurb: string;
+  skills: string[];
+  budget: GigBudget;
+  duration: string;
+  location: string;
+  glyph: string;
+  accent: GigAccent;
+  postedAt: string;
+  deadline: string;
+  startedAt: string;
+};
+
+export type OngoingGig = GigBase & {
+  status: "ongoing";
+  progress: number;
+  milestonesDone: number;
+  milestonesTotal: number;
+};
+
+export type FailedGig = GigBase & {
+  status: "failed";
+  progress: number;
+  failedAt: string;
+  reason: GigFailureReason;
+};
+
+export type CompletedGig = GigBase & {
+  status: "completed";
+  completedAt: string;
+  rating: number;
+  payout: number;
+};
+
+export type Gig = OngoingGig | FailedGig | CompletedGig;
+
+export type GigStatusMeta = {
+  label: string;
+  tone: GigAccent;
+  glyph: string;
+};
+
+export type GigGroup = {
+  status: GigStatus;
+  label: string;
+  gigs: Gig[];
+};

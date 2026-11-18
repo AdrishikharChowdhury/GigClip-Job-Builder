@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
+import ProfileErrorToast from "@/components/profile/ProfileErrorToast";
 import { fetchProfileById } from "@/lib/actions/profile.actions";
-import { toast } from "sonner";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,8 +13,12 @@ export default async function EmployeeDashBoard({ params }: Props) {
   const result = await fetchProfileById(id, "employee");
 
   if (!result.success) {
-    toast.error("Profile Not Found");
-    redirect("/sign-in");
+    return (
+      <section className="mx-auto max-w-3xl px-6 py-16">
+        <ProfileErrorToast message={result.message} />
+        <p className="text-[15px] font-medium text-ember">{result.message}</p>
+      </section>
+    );
   }
 
   const { data } = result;

@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { verifyPassword } from "@/lib/auth/password";
 import { getUserByEmail } from "@/lib/db/user.db";
 import { signInSchema } from "@/lib/schema";
+import { encodeDbUid } from "@/lib/sqidsHelper";
 
 export const {
   handlers,
@@ -70,8 +71,9 @@ export const {
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
+      if (user?.id) {
         token.id = user.id;
+        token.encodedId = encodeDbUid(user.id);
         token.role = user.role;
       }
 
@@ -79,8 +81,12 @@ export const {
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
+      if (session.user && typeof token.id === "string") {
+        session.user.id = token.id;
+        session.user.encodedId =
+          typeof token.encodedId === "string"
+            ? token.encodedId
+            : encodeDbUid(token.id);
         session.user.role = token.role as
           | "employee"
           | "employer";

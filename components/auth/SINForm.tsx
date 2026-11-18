@@ -54,8 +54,8 @@ export default function SINForm() {
     form.reset();
     router.push(
       session.user.role === "employee"
-        ? `/hub/empee/${session.user.id}`
-        : `/hub/emper/${session.user.id}`,
+        ? `/hub/empee/${session.user.encodedId}`
+        : `/hub/emper/${session.user.encodedId}`,
     );
     router.refresh();
   }

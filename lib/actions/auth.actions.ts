@@ -8,6 +8,7 @@ import { createUserWithProfile, getUserByEmail } from "@/lib/db/user.db";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { employeeSchema, employerSchema } from "@/lib/schema";
 import type { AuthResult, Values } from "@/types/type";
+import { encodeDbUid } from "../sqidsHelper";
 
 export async function registerUser(values: unknown): Promise<AuthResult> {
   if (!values || typeof values !== "object" || Array.isArray(values)) {
@@ -58,7 +59,7 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
       return {
         success: true,
-        data: { id: user.id, role: user.role },
+        data: { id: encodeDbUid(user.id), role: user.role },
         message: "Employee account created successfully!",
       };
     } catch {
@@ -107,7 +108,7 @@ export async function registerUser(values: unknown): Promise<AuthResult> {
 
       return {
         success: true,
-        data: { id: user.id, role: user.role },
+        data: { id: encodeDbUid(user.id), role: user.role },
         message: "Employer account created successfully!",
       };
     } catch {
@@ -178,7 +179,7 @@ export async function loginUser(values: Values): Promise<AuthResult> {
 
     return {
       success: true,
-      data: { id: user.id, role: user.role },
+      data: { id: encodeDbUid(user.id), role: user.role },
       message:
         user.role === "employee"
           ? "Logged in as a candidate."

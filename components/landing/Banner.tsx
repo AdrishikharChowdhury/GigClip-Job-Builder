@@ -5,7 +5,7 @@ import MintIcon from "./icons/MintIcon";
 
 export default function Banner() {
   return (
-    <section className="relative z-10 flex h-screen w-full flex-col items-center justify-center gap-10 px-6 py-28 text-center sm:px-10" id="home">
+    <section className="select-none relative z-10 flex h-screen w-full flex-col items-center justify-center gap-10 px-6 py-28 text-center sm:px-10" id="home">
       
       <EmberIcon position="left-8 top-1/4" icon="✦" color="black" />
       <SunburstIcon position="right-10 top-1/3" icon="★" color="black" />

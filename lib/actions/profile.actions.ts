@@ -5,18 +5,12 @@ import { revalidatePath } from "next/cache";
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import {
-  employeeProfiles,
-  employerProfiles,
-  users,
-} from "@/lib/db/schema";
+import { employeeProfiles, employerProfiles, users } from "@/lib/db/schema";
 import { getUserById } from "@/lib/db/user.db";
 import { dicebearAvatar } from "@/lib/avatar";
 import { deleteAvatar, uploadAvatar } from "@/lib/cloudinary";
-import {
-  employeeProfileSchema,
-  employerProfileSchema,
-} from "@/lib/schema";
+import { employeeProfileSchema, employerProfileSchema } from "@/lib/schema";
+import { decodeDbUid, encodeDbUid } from "../sqidsHelper";
 
 export type ProfileFailure = {
   success: false;
@@ -43,12 +37,10 @@ export type EmployerProfile = {
 };
 
 export type EmployeeProfileResult =
-  | ProfileFailure
-  | { success: true; data: EmployeeProfile; message: string };
+  ProfileFailure | { success: true; data: EmployeeProfile; message: string };
 
 export type EmployerProfileResult =
-  | ProfileFailure
-  | { success: true; data: EmployerProfile; message: string };
+  ProfileFailure | { success: true; data: EmployerProfile; message: string };
 
 export type UpdateProfileResult =
   | { success: true; message: string; image: string }
@@ -94,9 +86,7 @@ async function resolveAvatar(formData: FormData, userId: string) {
   }
 
   try {
-    const uploaded = await uploadAvatar(
-      Buffer.from(await file.arrayBuffer()),
-    );
+    const uploaded = await uploadAvatar(Buffer.from(await file.arrayBuffer()));
 
     await deleteAvatar(user.imagePublicId);
 
@@ -134,7 +124,13 @@ export async function fetchProfileById(
     return { success: false, message: "Not authenticated." };
   }
 
-  if (session.user.role !== role || session.user.id !== profileId) {
+  const userId = decodeDbUid(profileId);
+
+  if (!userId) {
+    return { success: false, message: "Profile not found." };
+  }
+
+  if (session.user.role !== role || session.user.id !== userId) {
     return { success: false, message: "Not authorized." };
   }
 
@@ -150,7 +146,7 @@ export async function fetchProfileById(
       })
       .from(employeeProfiles)
       .innerJoin(users, eq(users.id, employeeProfiles.userId))
-      .where(eq(employeeProfiles.userId, profileId))
+      .where(eq(employeeProfiles.userId, userId))
       .limit(1);
 
     if (!profile) {
@@ -162,7 +158,7 @@ export async function fetchProfileById(
       data: {
         ...profile,
         role: "employee",
-        image: profile.image ?? dicebearAvatar(profileId),
+        image: profile.image ?? dicebearAvatar(userId),
       },
       message: "Profile fetched.",
     };
@@ -178,7 +174,7 @@ export async function fetchProfileById(
     })
     .from(employerProfiles)
     .innerJoin(users, eq(users.id, employerProfiles.userId))
-    .where(eq(employerProfiles.userId, profileId))
+    .where(eq(employerProfiles.userId, userId))
     .limit(1);
 
   if (!profile) {
@@ -190,7 +186,7 @@ export async function fetchProfileById(
     data: {
       ...profile,
       role: "employer",
-      image: profile.image ?? dicebearAvatar(profileId),
+      image: profile.image ?? dicebearAvatar(userId),
     },
     message: "Profile fetched.",
   };
@@ -206,6 +202,7 @@ export async function updateProfile(
   }
 
   const userId = session.user.id;
+  const encodedId = encodeDbUid(userId);
 
   if (session.user.role === "employee") {
     const parsed = employeeProfileSchema.safeParse({
@@ -249,8 +246,8 @@ export async function updateProfile(
         .where(eq(employeeProfiles.userId, userId));
     });
 
-    revalidatePath(`/hub/empee/${userId}`);
-    revalidatePath(`/hub/empee/${userId}/edit`);
+    revalidatePath(`/hub/empee/${encodedId}`);
+    revalidatePath(`/hub/empee/${encodedId}/edit`);
 
     return {
       success: true,
@@ -298,8 +295,8 @@ export async function updateProfile(
       .where(eq(employerProfiles.userId, userId));
   });
 
-  revalidatePath(`/hub/emper/${userId}`);
-  revalidatePath(`/hub/emper/${userId}/edit`);
+  revalidatePath(`/hub/emper/${encodedId}`);
+  revalidatePath(`/hub/emper/${encodedId}/edit`);
 
   return {
     success: true,

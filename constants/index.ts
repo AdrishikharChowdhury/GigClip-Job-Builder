@@ -1,4 +1,13 @@
-import { FeedbackCard, LandingLink } from "@/types/type";
+import {
+  FeedbackCard,
+  Gig,
+  GigAccent,
+  GigFailureReason,
+  GigGroup,
+  GigStatus,
+  GigStatusMeta,
+  LandingLink,
+} from "@/types/type";
 
 export const landingLinks: LandingLink[] = [
   { href: "#home", label: "Home" },
@@ -257,3 +266,95 @@ export const LABEL_CLASS = "mb-2 block text-[12px] font-bold uppercase tracking-
 
 export const FIELD_CLASS =
   "w-full rounded-cards border border-carbon bg-paper-white px-5 py-3 text-[15px] font-medium tracking-[-0.01px] placeholder:text-carbon/40 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember";
+
+export const GIG_STATUS_META: Record<GigStatus, GigStatusMeta> = {
+  ongoing: { label: "In progress", tone: "electric-blue", glyph: "Timer" },
+  failed: { label: "Deadline reached", tone: "ember", glyph: "AlarmClockOff" },
+  completed: { label: "Completed", tone: "mint-pop", glyph: "CircleCheck" },
+};
+
+export const GIG_FAILURE_REASON_LABELS: Record<GigFailureReason, string> = {
+  "deadline-missed": "Deadline missed",
+  "scope-abandoned": "Scope abandoned",
+  "client-cancelled": "Client cancelled",
+};
+
+export const GIG_ACCENT_CLASS: Record<GigAccent, string> = {
+  "electric-blue": "bg-electric-blue",
+  "mint-pop": "bg-mint-pop",
+  lavender: "bg-lavender",
+  sunburst: "bg-sunburst",
+  "voltage-violet": "bg-voltage-violet",
+  ember: "bg-ember",
+};
+
+export const SAMPLE_GIGS: Gig[] = [
+  {
+    id: "gig-001",
+    status: "ongoing",
+    title: "Design System Revamp",
+    client: "Nova Studio",
+    blurb:
+      "Refresh the component library, tokens and docs ahead of the v3 launch.",
+    skills: ["Figma", "Design Tokens", "Documentation"],
+    budget: { amount: 3200, currency: "USD", type: "fixed" },
+    duration: "4 weeks",
+    location: "Remote",
+    glyph: "PenTool",
+    accent: "electric-blue",
+    postedAt: "2026-11-02",
+    deadline: "2026-11-28",
+    startedAt: "2026-11-04",
+    progress: 45,
+    milestonesDone: 2,
+    milestonesTotal: 5,
+  },
+  {
+    id: "gig-002",
+    status: "failed",
+    title: "Marketing Site Rebuild",
+    client: "Confetti Co",
+    blurb:
+      "Ship the new Next.js marketing site with a CMS-backed blog and pricing page.",
+    skills: ["Next.js", "Tailwind CSS", "CMS"],
+    budget: { amount: 4800, currency: "USD", type: "fixed" },
+    duration: "6 weeks",
+    location: "Remote",
+    glyph: "LayoutTemplate",
+    accent: "ember",
+    postedAt: "2026-09-15",
+    deadline: "2026-11-06",
+    startedAt: "2026-09-18",
+    failedAt: "2026-11-07",
+    progress: 72,
+    reason: "deadline-missed",
+  },
+  {
+    id: "gig-003",
+    status: "completed",
+    title: "Brand Illustration Set",
+    client: "Pastel Pay",
+    blurb:
+      "Twelve sticker-style illustrations for onboarding and the wallet screen.",
+    skills: ["Illustration", "Vector", "Brand"],
+    budget: { amount: 55, currency: "USD", type: "hourly" },
+    duration: "3 weeks",
+    location: "Remote",
+    glyph: "Palette",
+    accent: "mint-pop",
+    postedAt: "2026-09-28",
+    deadline: "2026-10-30",
+    startedAt: "2026-10-01",
+    completedAt: "2026-10-27",
+    rating: 5,
+    payout: 1540,
+  },
+];
+
+export const SAMPLE_GIG_GROUPS: GigGroup[] = (
+  ["ongoing", "failed", "completed"] as const
+).map((status) => ({
+  status,
+  label: GIG_STATUS_META[status].label,
+  gigs: SAMPLE_GIGS.filter((gig) => gig.status === status),
+}));

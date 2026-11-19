@@ -195,3 +195,7 @@ export type GigGroup = {
   label: string;
   gigs: Gig[];
 };
+
+export type Props = {
+  params: Promise<{ id: string }>;
+};

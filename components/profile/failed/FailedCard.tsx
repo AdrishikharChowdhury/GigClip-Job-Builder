@@ -24,7 +24,7 @@ const FailedCard = ({ id, startedAt, title, blurb }:CardProps) => {
         <Link
           title="View More"
           className="text-sm mr-5"
-          href={`/hub/empee/gigs/ongoing/${id}`}
+          href={`/hub/empee/gigs/failed/${id}`}
         >
           <ArrowRight />
         </Link>

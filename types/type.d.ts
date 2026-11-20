@@ -199,3 +199,11 @@ export type GigGroup = {
 export type Props = {
   params: Promise<{ id: string }>;
 };
+
+export type CardProps = {
+  id: string
+  startedAt: string
+  title: string
+  blurb: string
+  deadline:string
+}

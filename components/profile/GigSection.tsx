@@ -1,11 +1,6 @@
-import { SAMPLE_GIG_GROUPS } from "@/constants";
-import { dateFormatter } from "@/lib/db/utils";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import React from "react";
-import OngoingSection from "./OngoingSection";
-import CompletedSection from "./CompletedSection";
-import FailedSection from "./FailedSection";
+import OngoingSection from "./ongoing/OngoingSection";
+import CompletedSection from "./completed/CompletedSection";
+import FailedSection from "./failed/FailedSection";
 
 const GigSection = () => {
   

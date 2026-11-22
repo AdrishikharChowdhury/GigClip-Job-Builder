@@ -173,6 +173,7 @@ export type FailedGig = GigBase & {
   progress: number;
   failedAt: string;
   reason: GigFailureReason;
+  failureReason?: string;
 };
 
 export type CompletedGig = GigBase & {
@@ -199,11 +200,3 @@ export type GigGroup = {
 export type Props = {
   params: Promise<{ id: string }>;
 };
-
-export type CardProps = {
-  id: string
-  startedAt: string
-  title: string
-  blurb: string
-  deadline:string
-}

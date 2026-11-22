@@ -8,7 +8,7 @@ type SkillsProps = {
 
 const Skills = ({ jobTitle, skills, bio }: SkillsProps) => {
   return (
-    <div className="flex flex-col gap-12 rounded-cards border border-carbon bg-paper-white p-6">
+    <div className="flex flex-col gap-12 border border-carbon bg-paper-white p-6">
       <p className="text-xl font-semibold">{jobTitle}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {skills.map((skill) => (

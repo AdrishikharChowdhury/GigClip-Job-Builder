@@ -1,13 +1,26 @@
+import { dateFormatter } from "@/lib/db/utils";
 import {
+  FailedGig,
   FeedbackCard,
   Gig,
   GigAccent,
+  GigBudget,
   GigFailureReason,
   GigGroup,
   GigStatus,
   GigStatusMeta,
   LandingLink,
 } from "@/types/type";
+import {
+  BriefcaseBusiness,
+  CircleDollarSign,
+  Clock3,
+  Layers,
+  LayoutTemplate,
+  MapPin,
+  Snowflake,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export const landingLinks: LandingLink[] = [
   { href: "#home", label: "Home" },
@@ -228,21 +241,24 @@ export const JOB_VARIETIES = [
     glyph: "FT",
     title: "Full-Time",
     color: "bg-sunburst",
-    blurb: "The intentional nine-to-five: real benefits, a real team, and a corner of the sticker universe to call home.",
+    blurb:
+      "The intentional nine-to-five: real benefits, a real team, and a corner of the sticker universe to call home.",
     openings: "40+",
   },
   {
     glyph: "PT",
     title: "Part-Time",
     color: "bg-mint-pop",
-    blurb: "Balanced by design — school, family or a side hustle gets equal billing with the work.",
+    blurb:
+      "Balanced by design — school, family or a side hustle gets equal billing with the work.",
     openings: "15+",
   },
   {
     glyph: "CT",
     title: "Contract",
     color: "bg-lavender",
-    blurb: "Fixed-scope missions for craftspeople who ship hard and bounce clean.",
+    blurb:
+      "Fixed-scope missions for craftspeople who ship hard and bounce clean.",
     openings: "12+",
   },
   {
@@ -261,8 +277,8 @@ export const JOB_VARIETIES = [
   },
 ];
 
-
-export const LABEL_CLASS = "mb-2 block text-[12px] font-bold uppercase tracking-[0.032em]";
+export const LABEL_CLASS =
+  "mb-2 block text-[12px] font-bold uppercase tracking-[0.032em]";
 
 export const FIELD_CLASS =
   "w-full rounded-cards border border-carbon bg-paper-white px-5 py-3 text-[15px] font-medium tracking-[-0.01px] placeholder:text-carbon/40 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember";
@@ -279,6 +295,14 @@ export const GIG_FAILURE_REASON_LABELS: Record<GigFailureReason, string> = {
   "client-cancelled": "Client cancelled",
 };
 
+export const GIG_FAILURE_COPY: Record<GigFailureReason, string> = {
+  "deadline-missed":
+    "The deadline landed before the final handoff was ready to ship.",
+  "scope-abandoned": "The brief grew past what this gig was set up to deliver.",
+  "client-cancelled":
+    "The client pulled the plug before the work reached the finish line.",
+};
+
 export const GIG_ACCENT_CLASS: Record<GigAccent, string> = {
   "electric-blue": "bg-electric-blue",
   "mint-pop": "bg-mint-pop",
@@ -287,6 +311,96 @@ export const GIG_ACCENT_CLASS: Record<GigAccent, string> = {
   "voltage-violet": "bg-voltage-violet",
   ember: "bg-ember",
 };
+
+export const GIG_SKILL_TONES = [
+  "bg-sunburst",
+  "bg-mint-pop",
+  "bg-lavender",
+  "bg-electric-blue",
+  "bg-soft-mist",
+];
+
+export const GIG_GLYPH_ICONS: Record<string, LucideIcon> = {
+  LayoutTemplate,
+  Layers,
+  Snowflake,
+};
+
+export const formatGigBudget = (amount: number, type: GigBudget["type"]) =>
+  `${new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount)}${type === "hourly" ? "/hr" : ""}`;
+
+export const getGigHref = (gig: Gig) =>
+  `/hub/empee/gigs/${gig.status}/${gig.id}`;
+
+export type GigFactCard = {
+  label: string;
+  value: string;
+  note: string;
+  tone: string;
+  icon?: LucideIcon;
+};
+
+export const getFailedGigFacts = (gig: FailedGig): GigFactCard[] => [
+  {
+    label: "Client",
+    value: gig.client,
+    note: "Commissioned this gig",
+    icon: BriefcaseBusiness,
+    tone: "bg-sunburst",
+  },
+  {
+    label: "Budget",
+    value: formatGigBudget(gig.budget.amount, gig.budget.type),
+    note: gig.budget.type === "fixed" ? "Fixed price" : "Hourly rate",
+    icon: CircleDollarSign,
+    tone: "bg-mint-pop",
+  },
+  {
+    label: "Duration",
+    value: gig.duration,
+    note: "Planned timeline",
+    icon: Clock3,
+    tone: "bg-lavender",
+  },
+  {
+    label: "Location",
+    value: gig.location,
+    note: "Work arrangement",
+    icon: MapPin,
+    tone: "bg-electric-blue",
+  },
+];
+
+export const getFailedGigDates = (gig: FailedGig): GigFactCard[] => [
+  {
+    label: "Posted",
+    value: dateFormatter(gig.postedAt),
+    note: "Gig went live",
+    tone: "bg-soft-mist",
+  },
+  {
+    label: "Started",
+    value: dateFormatter(gig.startedAt),
+    note: "Work kicked off",
+    tone: "bg-soft-mist",
+  },
+  {
+    label: "Deadline",
+    value: dateFormatter(gig.deadline),
+    note: "Original due date",
+    tone: "bg-sunburst",
+  },
+  {
+    label: "Marked failed",
+    value: dateFormatter(gig.failedAt),
+    note: "Record closed",
+    tone: "bg-ember",
+  },
+];
 
 export const SAMPLE_GIGS: Gig[] = [
   {
@@ -428,6 +542,8 @@ export const SAMPLE_GIGS: Gig[] = [
     failedAt: "2026-11-07",
     progress: 72,
     reason: "deadline-missed",
+    failureReason:
+      "The CMS integration ran long, and the site was still in QA when the deadline passed.",
   },
   {
     id: "gig-012",
@@ -448,6 +564,8 @@ export const SAMPLE_GIGS: Gig[] = [
     failedAt: "2026-10-14",
     progress: 46,
     reason: "scope-abandoned",
+    failureReason:
+      "The scope tripled mid-sprint, adding dashboards and exports that were never in the original brief.",
   },
   {
     id: "gig-013",
@@ -468,6 +586,8 @@ export const SAMPLE_GIGS: Gig[] = [
     failedAt: "2026-10-03",
     progress: 28,
     reason: "client-cancelled",
+    failureReason:
+      "The client pulled the campaign before the second round of illustrations could be approved.",
   },
   {
     id: "gig-003",
@@ -558,3 +678,26 @@ export const SAMPLE_GIG_GROUPS: GigGroup[] = (
   label: GIG_STATUS_META[status].label,
   gigs: SAMPLE_GIGS.filter((gig) => gig.status === status),
 }));
+
+export const empeeLinks = [
+  {
+    label: "Hub",
+    link: "/hub/empee",
+  },
+  {
+    label: "My Gigs",
+    link: "/hub/empee/gigs",
+  },
+  {
+    label: "Gig Board",
+    link: "/hub/board",
+  },
+];
+
+export const SECTION_ORDER: GigStatus[] = ["ongoing", "completed", "failed"];
+
+export const SECTION_TITLES: Record<GigStatus, string> = {
+  ongoing: "Ongoing Tasks",
+  completed: "Completed Tasks",
+  failed: "Failed Tasks",
+};

@@ -48,17 +48,17 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
             />
             {statusMeta.label}
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-[0.032em] opacity-70">
-            {gig.id}
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-carbon bg-paper-white transition-colors group-hover:bg-sunburst">
+            <ArrowUpRight size={18} strokeWidth={2} color="black" />
           </span>
         </div>
 
         <div className="flex flex-1 flex-col gap-5 p-6">
           <div className="flex flex-col gap-3">
-            <p className="text-[12px] font-bold uppercase tracking-[0.032em] text-carbon/60">
+            <p className="text-caption font-bold uppercase tracking-[0.032em] text-carbon/60">
               {gig.client}
             </p>
-            <h2 className="font-lateral text-2xl leading-[0.8]">
+            <h2 className="font-lateral text-2xl leading-display">
               {gig.title}
             </h2>
             <p className="line-clamp-2 text-body-lg font-medium text-carbon/70">
@@ -70,7 +70,7 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
             {gig.skills.slice(0, 3).map((skill, index) => (
               <span
                 key={skill}
-                className={`rounded-pills border border-carbon px-5 py-2 text-[11px] font-bold uppercase tracking-[0.032em] text-carbon ${
+                className={`rounded-pills border border-carbon px-5 py-2 text-[8px] font-bold uppercase tracking-wider text-carbon ${
                   GIG_SKILL_TONES[index % GIG_SKILL_TONES.length]
                 }`}
               >
@@ -98,9 +98,7 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
               </span>
             </div>
 
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-carbon bg-paper-white transition-colors group-hover:bg-sunburst">
-              <ArrowUpRight size={18} strokeWidth={2} />
-            </span>
+            
           </div>
         </div>
       </Link>

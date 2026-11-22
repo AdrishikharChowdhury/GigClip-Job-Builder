@@ -47,7 +47,7 @@ export default async function EmployeeDashBoard() {
             </Link>
           </span>
           <p className="mt-2 text-body-lg font-medium tracking-[-0.01px] text-carbon/60">
-            {data.email}
+            @{data.email.trim().replace(/@.*$/, "")}
           </p>
         </div>
       </div>

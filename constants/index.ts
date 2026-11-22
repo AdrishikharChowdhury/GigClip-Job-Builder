@@ -693,3 +693,11 @@ export const empeeLinks = [
     link: "/hub/board",
   },
 ];
+
+export const SECTION_ORDER: GigStatus[] = ["ongoing", "completed", "failed"];
+
+export const SECTION_TITLES: Record<GigStatus, string> = {
+  ongoing: "Ongoing Tasks",
+  completed: "Completed Tasks",
+  failed: "Failed Tasks",
+};

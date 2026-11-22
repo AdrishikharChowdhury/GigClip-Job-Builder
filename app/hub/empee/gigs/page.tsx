@@ -38,7 +38,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
 
   const session = await auth();
   const hubHref = session?.user?.encodedId
-    ? `/hub/empee/${session.user.encodedId}`
+    ? `/hub/empee/`
     : "/sign-in";
 
   return (

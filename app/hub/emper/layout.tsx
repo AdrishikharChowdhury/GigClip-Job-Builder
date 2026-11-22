@@ -1,8 +1,7 @@
 import { Layout } from "@/types/type";
-import React from "react";
 
 const EmployerLayout = ({ children }: Layout) => {
-  return <div>{children}</div>;
+  return children;
 };
 
 export default EmployerLayout;

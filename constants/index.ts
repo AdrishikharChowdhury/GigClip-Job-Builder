@@ -679,18 +679,42 @@ export const SAMPLE_GIG_GROUPS: GigGroup[] = (
   gigs: SAMPLE_GIGS.filter((gig) => gig.status === status),
 }));
 
-export const empeeLinks = [
+export type SidebarIcon = "dashboard" | "briefcase" | "grid" | "edit-profile";
+
+export type SidebarLink = {
+  label: string;
+  link: string;
+  icon: SidebarIcon;
+};
+
+export const empeeLinks: SidebarLink[] = [
   {
     label: "Hub",
     link: "/hub/empee",
+    icon: "dashboard",
   },
   {
     label: "My Gigs",
     link: "/hub/empee/gigs",
+    icon: "briefcase",
   },
   {
     label: "Gig Board",
-    link: "/hub/board",
+    link: "/hub/empee/board",
+    icon: "grid",
+  },
+];
+
+export const getEmperLinks = (id: string): SidebarLink[] => [
+  {
+    label: "Hub",
+    link: `/hub/emper/${id}`,
+    icon: "dashboard",
+  },
+  {
+    label: "Edit Profile",
+    link: `/hub/emper/${id}/edit`,
+    icon: "edit-profile",
   },
 ];
 

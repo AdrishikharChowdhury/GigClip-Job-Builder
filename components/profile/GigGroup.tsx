@@ -22,6 +22,10 @@ const GigGroup = ({ status, gigs }: GigGroupType) => {
     if (end >= gigs.length) return;
     setStart((prev) => prev + ITEMS_PER_PAGE);
   };
+
+  const handlePage = (page: number) => {
+    setStart((page - 1) * ITEMS_PER_PAGE)
+  }
   return (
     <article className="flex flex-col gap-12 border border-carbon bg-paper-white p-6">
       <div className="flex items-center justify-between gap-4">
@@ -52,7 +56,7 @@ const GigGroup = ({ status, gigs }: GigGroupType) => {
           </Button>
           <div className="flex gap-4">
             {pages.map((page) => (
-              <Button className="px-5 text-lg font-semibold hover:bg-black hover:text-paper-white py-5 border border-carbon" key={page}>{page}</Button>
+              <Button onClick={()=>handlePage(page)} className="px-5 text-lg font-semibold hover:bg-black hover:text-paper-white py-5 border border-carbon" key={page}>{page}</Button>
             ))}
           </div>
           <Button

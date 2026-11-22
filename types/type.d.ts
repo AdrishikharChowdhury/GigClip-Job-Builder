@@ -173,6 +173,7 @@ export type FailedGig = GigBase & {
   progress: number;
   failedAt: string;
   reason: GigFailureReason;
+  failureReason?: string;
 };
 
 export type CompletedGig = GigBase & {

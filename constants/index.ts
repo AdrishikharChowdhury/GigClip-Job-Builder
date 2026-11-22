@@ -241,21 +241,24 @@ export const JOB_VARIETIES = [
     glyph: "FT",
     title: "Full-Time",
     color: "bg-sunburst",
-    blurb: "The intentional nine-to-five: real benefits, a real team, and a corner of the sticker universe to call home.",
+    blurb:
+      "The intentional nine-to-five: real benefits, a real team, and a corner of the sticker universe to call home.",
     openings: "40+",
   },
   {
     glyph: "PT",
     title: "Part-Time",
     color: "bg-mint-pop",
-    blurb: "Balanced by design — school, family or a side hustle gets equal billing with the work.",
+    blurb:
+      "Balanced by design — school, family or a side hustle gets equal billing with the work.",
     openings: "15+",
   },
   {
     glyph: "CT",
     title: "Contract",
     color: "bg-lavender",
-    blurb: "Fixed-scope missions for craftspeople who ship hard and bounce clean.",
+    blurb:
+      "Fixed-scope missions for craftspeople who ship hard and bounce clean.",
     openings: "12+",
   },
   {
@@ -274,8 +277,8 @@ export const JOB_VARIETIES = [
   },
 ];
 
-
-export const LABEL_CLASS = "mb-2 block text-[12px] font-bold uppercase tracking-[0.032em]";
+export const LABEL_CLASS =
+  "mb-2 block text-[12px] font-bold uppercase tracking-[0.032em]";
 
 export const FIELD_CLASS =
   "w-full rounded-cards border border-carbon bg-paper-white px-5 py-3 text-[15px] font-medium tracking-[-0.01px] placeholder:text-carbon/40 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember";
@@ -295,8 +298,7 @@ export const GIG_FAILURE_REASON_LABELS: Record<GigFailureReason, string> = {
 export const GIG_FAILURE_COPY: Record<GigFailureReason, string> = {
   "deadline-missed":
     "The deadline landed before the final handoff was ready to ship.",
-  "scope-abandoned":
-    "The brief grew past what this gig was set up to deliver.",
+  "scope-abandoned": "The brief grew past what this gig was set up to deliver.",
   "client-cancelled":
     "The client pulled the plug before the work reached the finish line.",
 };
@@ -330,6 +332,9 @@ export const formatGigBudget = (amount: number, type: GigBudget["type"]) =>
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(amount)}${type === "hourly" ? "/hr" : ""}`;
+
+export const getGigHref = (gig: Gig) =>
+  `/hub/empee/gigs/${gig.status}/${gig.id}`;
 
 export type GigFactCard = {
   label: string;
@@ -673,3 +678,18 @@ export const SAMPLE_GIG_GROUPS: GigGroup[] = (
   label: GIG_STATUS_META[status].label,
   gigs: SAMPLE_GIGS.filter((gig) => gig.status === status),
 }));
+
+export const empeeLinks = [
+  {
+    label: "Hub",
+    link: "/hub/empee",
+  },
+  {
+    label: "My Gigs",
+    link: "/hub/empee/gigs",
+  },
+  {
+    label: "Gig Board",
+    link: "/hub/board",
+  },
+];

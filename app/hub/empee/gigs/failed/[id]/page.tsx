@@ -57,7 +57,7 @@ const FailedGig = async ({ params }: Props) => {
           </li>
           <li>
             <Link
-              href={hubHref}
+              href="/hub/empee/gigs"
               className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-carbon transition-colors hover:bg-mint-pop"
             >
               Gigs

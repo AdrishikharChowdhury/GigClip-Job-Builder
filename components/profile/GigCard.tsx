@@ -37,7 +37,7 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
     <article className={`h-full ${className}`}>
       <Link
         href={getGigHref(gig)}
-        className="group flex h-full flex-col overflow-hidden rounded-cards border border-carbon bg-paper-white transition-transform hover:-translate-y-1"
+        className="group flex h-full flex-col overflow-hidden border border-carbon bg-paper-white transition-transform hover:-translate-y-1"
       >
         <div
           className={`flex items-center justify-between gap-4 border-b border-carbon px-6 py-5 ${GIG_ACCENT_CLASS[gig.accent]} ${accentText}`}
@@ -58,7 +58,7 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
             <p className="text-[12px] font-bold uppercase tracking-[0.032em] text-carbon/60">
               {gig.client}
             </p>
-            <h2 className="font-lateral text-3xl leading-[0.8]">
+            <h2 className="font-lateral text-2xl leading-[0.8]">
               {gig.title}
             </h2>
             <p className="line-clamp-2 text-body-lg font-medium text-carbon/70">

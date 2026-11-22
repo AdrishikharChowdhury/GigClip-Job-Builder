@@ -2,21 +2,19 @@ import { redirect } from "next/navigation";
 
 import ProfileEditForm from "@/components/profile/ProfileEditForm";
 import { fetchProfileById } from "@/lib/actions/profile.actions";
+import { auth } from "@/auth";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-export default async function EmployeeProfileEditPage({ params }: Props) {
-  const { id } = await params;
-  const result = await fetchProfileById(id, "employee");
+export default async function EmployeeProfileEditPage() {
+  const session = await auth();
+  if (!session) redirect("/");
+  const result = await fetchProfileById(session?.user?.encodedId, "employee");
 
   if (!result.success) {
     if (result.message === "Not authenticated.") {
       redirect("/sign-in");
     }
 
-    redirect(`/hub/empee/${id}`);
+    redirect(`/hub/empee`);
   }
 
   const { data } = result;
@@ -32,7 +30,7 @@ export default async function EmployeeProfileEditPage({ params }: Props) {
 
       <ProfileEditForm
         role="employee"
-        userId={id}
+        userId={session?.user?.encodedId}
         image={data.image}
         defaults={{
           name: data.name,

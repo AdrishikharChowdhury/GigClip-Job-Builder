@@ -6,7 +6,7 @@ const EmployeeLayout = ({ children }: Layout) => {
   return (
     <main className="root-container">
       <Background />
-      <div className="mx-auto flex w-full max-w-[1800px] items-start justify-center gap-6">
+      <div className="mx-auto flex w-full max-w-[1800px] items-start justify-center">
         <div className="hidden shrink-0 lg:sticky lg:top-6 lg:block lg:pl-6">
           <SideBar />
         </div>

@@ -3,14 +3,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { fetchProfileById } from "@/lib/actions/profile.actions";
-import { Props } from "@/types/type";
 import GigSection from "@/components/profile/GigSection";
 import Skills from "@/components/profile/Skills";
 import { UserRoundPen } from "lucide-react";
+import { auth } from "@/auth";
 
-export default async function EmployeeDashBoard({ params }: Props) {
-  const { id } = await params;
-  const result = await fetchProfileById(id, "employee");
+export default async function EmployeeDashBoard() {
+  const session = await auth();
+  if (!session) redirect("/");
+  const result = await fetchProfileById(session?.user?.encodedId, "employee");
 
   if (!result.success) {
     redirect(`/sign-in?error=${encodeURIComponent(result.message)}`);
@@ -19,7 +20,7 @@ export default async function EmployeeDashBoard({ params }: Props) {
   const { data } = result;
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-16">
+    <section className="flex flex-col gap-6 px-6 py-16">
       <div className="flex items-center justify-between gap-4">
         <p className="text-caption font-bold uppercase tracking-[0.032em] text-carbon/60">
           Candidate hub
@@ -39,7 +40,7 @@ export default async function EmployeeDashBoard({ params }: Props) {
           <span className="flex items-center gap-6">
             <h1 className="font-lateral text-4xl leading-[0.9]">{data.name}</h1>
             <Link
-              href={`/hub/empee/${id}/edit`}
+              href={`/hub/empee/edit`}
               className="rounded-pills border border-carbon bg-sunburst px-6 py-2 text-[13px] font-bold tracking-[0.03em] text-carbon transition-opacity hover:opacity-80"
             >
               <UserRoundPen />

@@ -36,7 +36,7 @@ const GigSection = () => {
       {groups.map((group) => (
         <article
           key={group.status}
-          className="flex flex-col gap-12 rounded-cards border border-carbon bg-paper-white p-6"
+          className="flex flex-col gap-12 border border-carbon bg-paper-white p-6"
         >
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-semibold leading-[0.9]">
@@ -47,12 +47,12 @@ const GigSection = () => {
             </span>
           </div>
 
-          <div className="flex w-full gap-4 overflow-x-auto py-2">
+          <div className="flex w-full gap-6 overflow-x-auto py-2">
             {group.gigs.map((gig) => (
               <GigCard
                 key={gig.id}
                 gig={gig}
-                className="w-[min(100%,320px)] shrink-0"
+                className="w-[min(100%,390px)] shrink-0"
               />
             ))}
           </div>

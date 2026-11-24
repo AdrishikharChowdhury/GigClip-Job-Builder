@@ -6,8 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -51,9 +49,9 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
   const hubHref = session?.user?.encodedId ? `/hub/empee/` : "/sign-in";
 
   return (
-    <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-24 px-6 py-2">
+    <section className="mx-auto flex w-full max-w-360 flex-col gap-24 px-6 py-2">
       <nav aria-label="Breadcrumb">
-        <ol className="flex flex-wrap items-center gap-3 text-[12px] font-bold uppercase tracking-[0.032em]">
+        <ol className="flex flex-wrap items-center gap-3 text-caption font-bold uppercase tracking-[0.032em]">
           <li>
             <Link
               href={hubHref}
@@ -85,7 +83,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
           </div>
           <div className="flex w-full items-center justify-between">
             <div className="flex w-max gap-2">
-              <span className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em]">
+              <span className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-caption font-bold uppercase tracking-[0.032em]">
                 {gigs.length} total
               </span>
               {SAMPLE_GIG_GROUPS.map(({ status, gigs: groupGigs }) => {
@@ -94,7 +92,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
                 return (
                   <span
                     key={status}
-                    className={`rounded-pills border border-carbon px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em] text-carbon ${GIG_ACCENT_CLASS[meta.tone]}`}
+                    className={`rounded-pills border border-carbon px-6 py-2 text-caption font-bold uppercase tracking-[0.032em] text-carbon ${GIG_ACCENT_CLASS[meta.tone]}`}
                   >
                     {groupGigs.length} {meta.label}
                   </span>

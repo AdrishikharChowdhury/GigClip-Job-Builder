@@ -28,10 +28,12 @@ type GigCardProps = {
 };
 
 const GigCard = ({ gig, className = "" }: GigCardProps) => {
-  const accentText =
-    gig.accent === "voltage-violet" ? "text-paper-white" : "text-carbon";
   const statusMeta = GIG_STATUS_META[gig.status];
   const statusDate = getStatusDate(gig);
+  const accentText =
+    statusMeta.tone === "voltage-violet" || statusMeta.tone === "ember"
+      ? "text-paper-white"
+      : "text-carbon";
 
   return (
     <article className={`h-full ${className}`}>
@@ -40,7 +42,7 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
         className="group flex h-full flex-col overflow-hidden border border-carbon bg-paper-white transition-transform hover:-translate-y-1"
       >
         <div
-          className={`flex items-center justify-between gap-4 border-b border-carbon px-6 py-5 ${GIG_ACCENT_CLASS[gig.accent]} ${accentText}`}
+          className={`flex items-center justify-between gap-4 border-b border-carbon px-6 py-5 ${GIG_ACCENT_CLASS[statusMeta.tone]} ${accentText}`}
         >
           <span className="flex items-center gap-2 rounded-pills border border-carbon bg-paper-white px-5 py-2 text-[11px] font-bold uppercase tracking-[0.032em] text-carbon">
             <span
@@ -48,8 +50,8 @@ const GigCard = ({ gig, className = "" }: GigCardProps) => {
             />
             {statusMeta.label}
           </span>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-carbon bg-paper-white transition-colors group-hover:bg-sunburst">
-            <ArrowUpRight size={18} strokeWidth={2} color="black" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-carbon bg-paper-white text-carbon transition-colors group-hover:bg-sunburst">
+            <ArrowUpRight size={18} strokeWidth={2} aria-hidden="true" />
           </span>
         </div>
 

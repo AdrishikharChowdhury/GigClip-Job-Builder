@@ -1,15 +1,26 @@
 import { auth } from "@/auth";
 import GigCard from "@/components/profile/GigCard";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   GIG_ACCENT_CLASS,
   GIG_STATUS_META,
   SAMPLE_GIGS,
   SAMPLE_GIG_GROUPS,
 } from "@/constants";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Funnel, Search } from "lucide-react";
 import Link from "next/link";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 
 type AllGigsProps = {
   searchParams: Promise<{ page?: string | string[] }>;
@@ -37,12 +48,10 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   const session = await auth();
-  const hubHref = session?.user?.encodedId
-    ? `/hub/empee/`
-    : "/sign-in";
+  const hubHref = session?.user?.encodedId ? `/hub/empee/` : "/sign-in";
 
   return (
-    <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-24 px-6 py-48">
+    <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-24 px-6 py-2">
       <nav aria-label="Breadcrumb">
         <ol className="flex flex-wrap items-center gap-3 text-[12px] font-bold uppercase tracking-[0.032em]">
           <li>
@@ -66,34 +75,57 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
 
       <header className="flex flex-col gap-6">
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <div className="flex flex-col gap-4">
-            <span className="w-fit rounded-pills border border-carbon bg-sunburst px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em]">
-              Gig board
-            </span>
+          <div className="flex flex-col gap-6">
             <h1 className="font-lateral text-6xl leading-[0.8] sm:text-7xl xl:text-8xl">
-              All gigs
+              My gigs
             </h1>
             <p className="max-w-2xl text-body-lg font-medium text-carbon/70">
               Every gig on your board — in progress, failed, and completed.
             </p>
           </div>
+          <div className="flex w-full items-center justify-between">
+            <div className="flex w-max gap-2">
+              <span className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em]">
+                {gigs.length} total
+              </span>
+              {SAMPLE_GIG_GROUPS.map(({ status, gigs: groupGigs }) => {
+                const meta = GIG_STATUS_META[status];
 
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em]">
-              {gigs.length} total
+                return (
+                  <span
+                    key={status}
+                    className={`rounded-pills border border-carbon px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em] text-carbon ${GIG_ACCENT_CLASS[meta.tone]}`}
+                  >
+                    {groupGigs.length} {meta.label}
+                  </span>
+                );
+              })}
+            </div>
+            <span className="w-1/4 flex items-center">
+              <div className="flex items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className='w-1/3 flex items-center gap-4 bg-paper-white border border-carbon py-2 text-sm text-gray-700 pl-2 rounded-sm rounded-r-none'>
+                    <Funnel size={15} />
+                    <p>Filter</p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-paper-white w-62 text-2xl" >
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem>All gigs</DropdownMenuItem>
+                      <DropdownMenuItem>In Progress Gigs</DropdownMenuItem>
+                      <DropdownMenuItem>Completed Gigs</DropdownMenuItem>
+                      <DropdownMenuItem>Failed Gigs</DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Input
+                  className=" bg-paper-white w-5/6 rounded-r-none m-0 py-4.5 border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-l-none border-l-0"
+                  placeholder="Search"
+                />
+                <Button className="bg-voltage-violet w-1/6 rounded-l-none m-0 py-4.5 border border-carbon border-l-0">
+                  <Search className="size-6! text-white" />
+                </Button>
+              </div>
             </span>
-            {SAMPLE_GIG_GROUPS.map(({ status, gigs: groupGigs }) => {
-              const meta = GIG_STATUS_META[status];
-
-              return (
-                <span
-                  key={status}
-                  className={`rounded-pills border border-carbon px-6 py-2 text-[12px] font-bold uppercase tracking-[0.032em] text-carbon ${GIG_ACCENT_CLASS[meta.tone]}`}
-                >
-                  {groupGigs.length} {meta.label}
-                </span>
-              );
-            })}
           </div>
         </div>
       </header>

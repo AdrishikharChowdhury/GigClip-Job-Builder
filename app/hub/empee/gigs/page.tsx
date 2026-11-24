@@ -1,39 +1,66 @@
 import { auth } from "@/auth";
 import GigCard from "@/components/profile/GigCard";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import GigFilters from "@/components/profile/GigFilters";
 import {
   GIG_ACCENT_CLASS,
   GIG_STATUS_META,
   SAMPLE_GIGS,
   SAMPLE_GIG_GROUPS,
 } from "@/constants";
-import { ChevronLeft, ChevronRight, Funnel, Search } from "lucide-react";
+import { GigStatus } from "@/types/type";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const PAGE_SIZE = 9;
 
 type AllGigsProps = {
-  searchParams: Promise<{ page?: string | string[] }>;
+  searchParams: Promise<{
+    page?: string | string[];
+    status?: string | string[];
+    q?: string | string[];
+  }>;
 };
 
-const pageHref = (page: number) =>
-  page === 1 ? "/hub/empee/gigs" : `/hub/empee/gigs?page=${page}`;
+const getParam = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] : value;
+
+const isGigStatus = (value: string | undefined): value is GigStatus =>
+  value === "ongoing" || value === "completed" || value === "failed";
+
+const pageHref = (page: number, status: string, query: string) => {
+  const params = new URLSearchParams();
+  if (status !== "all") params.set("status", status);
+  if (query) params.set("q", query);
+  if (page > 1) params.set("page", String(page));
+  const qs = params.toString();
+  return qs ? `/hub/empee/gigs?${qs}` : "/hub/empee/gigs";
+};
 
 const AllGigs = async ({ searchParams }: AllGigsProps) => {
-  const { page } = await searchParams;
-  const requestedPage = Number(Array.isArray(page) ? page[0] : page);
+  const params = await searchParams;
+  const requestedPage = Number(getParam(params.page));
+  const statusParam = getParam(params.status);
+  const status = isGigStatus(statusParam) ? statusParam : "all";
+  const query = (getParam(params.q) ?? "").trim();
 
-  const gigs = [...SAMPLE_GIGS].sort((a, b) =>
-    b.postedAt.localeCompare(a.postedAt),
-  );
+  const normalizedQuery = query.toLowerCase();
+  const gigs = [...SAMPLE_GIGS]
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
+    .filter((gig) => (status === "all" ? true : gig.status === status))
+    .filter((gig) => {
+      if (!normalizedQuery) return true;
+      const haystack = [
+        gig.title,
+        gig.client,
+        gig.blurb,
+        gig.location,
+        ...gig.skills,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+
   const totalPages = Math.max(1, Math.ceil(gigs.length / PAGE_SIZE));
   const currentPage = Number.isFinite(requestedPage)
     ? Math.min(Math.max(Math.trunc(requestedPage), 1), totalPages)
@@ -41,7 +68,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
 
   const firstIndex = (currentPage - 1) * PAGE_SIZE;
   const pageGigs = gigs.slice(firstIndex, firstIndex + PAGE_SIZE);
-  const firstGig = firstIndex + 1;
+  const firstGig = gigs.length === 0 ? 0 : firstIndex + 1;
   const lastGig = firstIndex + pageGigs.length;
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
@@ -81,49 +108,38 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
               Every gig on your board — in progress, failed, and completed.
             </p>
           </div>
-          <div className="flex w-full items-center justify-between">
-            <div className="flex w-max gap-2">
+          <div className="flex w-full flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-wrap gap-2">
               <span className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-caption font-bold uppercase tracking-[0.032em]">
-                {gigs.length} total
+                {gigs.length} {status === "all" ? "total" : "matching"}
               </span>
-              {SAMPLE_GIG_GROUPS.map(({ status, gigs: groupGigs }) => {
-                const meta = GIG_STATUS_META[status];
+              {SAMPLE_GIG_GROUPS.map(({ status: groupStatus, gigs: groupGigs }) => {
+                const meta = GIG_STATUS_META[groupStatus];
+                const isActive = status === groupStatus;
 
                 return (
-                  <span
-                    key={status}
-                    className={`rounded-pills border border-carbon px-6 py-2 text-caption font-bold uppercase tracking-[0.032em] text-carbon ${GIG_ACCENT_CLASS[meta.tone]}`}
+                  <Link
+                    key={groupStatus}
+                    href={pageHref(1, groupStatus, query)}
+                    className={`rounded-pills border border-carbon px-6 py-2 text-caption font-bold uppercase tracking-[0.032em] text-carbon transition-opacity hover:opacity-85 ${GIG_ACCENT_CLASS[meta.tone]} ${
+                      isActive ? "ring-2 ring-carbon ring-offset-2 ring-offset-paper-white" : ""
+                    }`}
                   >
                     {groupGigs.length} {meta.label}
-                  </span>
+                  </Link>
                 );
               })}
+              {status !== "all" ? (
+                <Link
+                  href={pageHref(1, "all", query)}
+                  className="rounded-pills border border-carbon bg-paper-white px-6 py-2 text-caption font-bold uppercase tracking-[0.032em] text-carbon transition-colors hover:bg-soft-mist"
+                >
+                  Clear filter
+                </Link>
+              ) : null}
             </div>
-            <span className="w-1/4 flex items-center">
-              <div className="flex items-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className='w-1/3 flex items-center gap-4 bg-paper-white border border-carbon py-2 text-sm text-gray-700 pl-2 rounded-sm rounded-r-none'>
-                    <Funnel size={15} />
-                    <p>Filter</p>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-paper-white w-62 text-2xl" >
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>All gigs</DropdownMenuItem>
-                      <DropdownMenuItem>In Progress Gigs</DropdownMenuItem>
-                      <DropdownMenuItem>Completed Gigs</DropdownMenuItem>
-                      <DropdownMenuItem>Failed Gigs</DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Input
-                  className=" bg-paper-white w-5/6 rounded-r-none m-0 py-4.5 border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-l-none border-l-0"
-                  placeholder="Search"
-                />
-                <Button className="bg-voltage-violet w-1/6 rounded-l-none m-0 py-4.5 border border-carbon border-l-0">
-                  <Search className="size-6! text-white" />
-                </Button>
-              </div>
-            </span>
+            <GigFilters query={query} />
+            
           </div>
         </div>
       </header>
@@ -132,9 +148,16 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
         aria-label="All gigs"
         className="grid gap-16 sm:grid-cols-2 xl:grid-cols-3"
       >
-        {pageGigs.map((gig) => (
-          <GigCard key={gig.id} gig={gig} />
-        ))}
+        {pageGigs.length > 0 ? (
+          pageGigs.map((gig) => <GigCard key={gig.id} gig={gig} />)
+        ) : (
+          <div className="col-span-full rounded-cards border border-carbon bg-paper-white p-8 text-center">
+            <p className="font-lateral text-2xl leading-tight">No gigs found</p>
+            <p className="mt-2 text-body-lg text-carbon/60">
+              Try a different search or clear the status filter.
+            </p>
+          </div>
+        )}
       </section>
 
       <nav
@@ -152,7 +175,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
         <div className="flex flex-wrap items-center gap-2">
           {currentPage > 1 ? (
             <Link
-              href={pageHref(currentPage - 1)}
+              href={pageHref(currentPage - 1, status, query)}
               aria-label="Previous page"
               className="flex h-10 w-10 items-center justify-center rounded-pills border border-carbon bg-paper-white transition-colors hover:bg-sunburst"
             >
@@ -173,7 +196,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
             return (
               <Link
                 key={pageNumber}
-                href={pageHref(pageNumber)}
+                href={pageHref(pageNumber, status, query)}
                 aria-current={isCurrent ? "page" : undefined}
                 className={`flex h-10 min-w-10 items-center justify-center rounded-pills border border-carbon px-5 text-[13px] font-bold transition-colors ${
                   isCurrent
@@ -188,7 +211,7 @@ const AllGigs = async ({ searchParams }: AllGigsProps) => {
 
           {currentPage < totalPages ? (
             <Link
-              href={pageHref(currentPage + 1)}
+              href={pageHref(currentPage + 1, status, query)}
               aria-label="Next page"
               className="flex h-10 w-10 items-center justify-center rounded-pills border border-carbon bg-paper-white transition-colors hover:bg-sunburst"
             >
